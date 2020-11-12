@@ -1,0 +1,8 @@
+---
+- name: setup Docker repository and Nginx image based on Ansible OS
+  hosts: web
+  become: yes
+
+  roles:
+  - docker  
+

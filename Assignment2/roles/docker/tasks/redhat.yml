@@ -1,0 +1,55 @@
+---
+- name: "Installing Docker Prerequisite packages"
+  yum:
+    name: "{{redhat_packages}}"
+    state: latest
+
+- name: Install docker on EC2 machine
+  shell: sudo yum -y install docker
+
+ 
+- name: Starting and Enabling Docker service
+  service:
+    name: docker
+    state: started
+ 
+
+- name: Update yum packages
+  yum:
+    update_cache: yes
+  notify: Restart Docker
+
+
+- name: Install or update pip
+  yum:
+    name: python-pip
+  become: yes
+
+# Install pip and docker SDK for python to allow the usage of community.general.docker_container module
+- name: Install pip3 
+  yum:
+    name: python3-pip
+    state: latest
+      
+- name: Install docker SDK for python 
+  pip:
+    name: docker
+
+- name: Flush handler (restart docker)
+  meta: flush_handlers
+
+- name: Run nginx container
+  community.general.docker_container:
+    name: my_nginx
+    image: nginx
+    state: started
+    ports:
+      - "{{ nginx_ports }}"
+
+- name: Add user to docker group
+  user:
+    name: "{{item}}"
+    shell: /bin/bash
+    groups: docker
+    append: yes
+  with_items: "{{ ec2_user }}"

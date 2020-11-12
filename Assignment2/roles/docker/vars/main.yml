@@ -1,0 +1,24 @@
+---
+ubuntu_packages: 
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - software-properties-common
+
+redhat_packages:
+  - yum-utils
+  - device-mapper-persistent-data
+  - lvm2
+
+
+
+ubuntu_users:
+  - moti
+  - ansi
+
+ec2_user:
+  - moti
+  - ansi
+
+nginx_ubuntu_ports: 80:80
+nginx_ports: 8080:80

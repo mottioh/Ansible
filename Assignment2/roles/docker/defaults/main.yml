@@ -1,0 +1,3 @@
+---
+nginx_ports: 8080:80
+nginx_ubuntu_ports: 80:80

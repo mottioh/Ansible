@@ -1,0 +1,66 @@
+---
+- name: install packages to allow apt to use a repository over HTTPS
+  apt:
+    pkg: "{{ubuntu_packages }}"
+    state: present
+
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Verify that we have the key with the fingerprint
+  apt_key:
+    id: 0EBFCD88
+    state: present
+
+- name: set up the stable repository
+  apt_repository: 
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+
+- name: Install docker engine
+  apt:
+    name: docker-ce
+    state: present
+    update_cache: yes
+
+- name: Update apt packages
+  apt:
+    update_cache: yes
+  notify: Restart Docker
+
+- name: install pip
+  apt:
+    pkg: python-pip 
+    state: present
+
+# Install pip and docker SDK for python to allow the usage of community.general.docker_container module
+- name: Install pip3 
+  apt:
+    name: python3-pip
+    state: latest
+
+- name: Install docker SDK for python 
+  pip:
+    name: docker
+
+- name: Flush handler (restart docker)
+  meta: flush_handlers
+
+- name: Run nginx container
+  community.general.docker_container:
+    name: my_nginx
+    image: nginx
+    state: started
+    ports:
+      - "{{ nginx_ubuntu_ports }}"
+
+- name: Add ubuntu user to docker group
+  user:
+    name: "{{item}}"
+    shell: /bin/bash
+    groups: docker
+    append: yes
+  with_items: "{{ ubuntu_users }}"
